@@ -1,0 +1,83 @@
+{% extends "layout_users.html" %}
+{% block head %}
+    <script src="/static/js/mypet_update.js" type="text/javascript"></script>
+{% endblock %}
+
+
+{% block content %}
+    {% for animal in animals %}
+        <div id="error"></div>
+        <div id="response"></div>
+        <div class="post-main-container">
+            <div class="post-title-container">
+                <h2>Trouver un partenaire pour votre animal</h2>
+            </div>
+
+            <div class="post-form-container">
+                <div class="post-form-wrapper">
+
+                    <h3>
+                        <div class="post-number-box">1</div>
+                        Ad details
+                    </h3>
+                    <br/>
+                    <label> Select Categories </label>
+                    <select id="select-option" class="post-select-option" title="option">
+                        <option value="0">Tous les animaux</option>
+                        <option value="1">Chien</option>
+                        <option value="2">Chats</option>
+                        <option value="3">Autres</option>
+                    </select>
+                    <br/>
+                    <label class="" for="name"> Nom : </label>
+                    <input class="post-form-input" id="name" value="{{ animal[1] }}"/>
+                    <br/>
+                    <label class="" for="type"> Type : </label>
+                    <input class="post-form-input" id="type" value="{{ animal[2] }}"/>
+                    <br/>
+                    <label class="" for="race"> Race : </label>
+                    <input class="post-form-input" id="race" value="{{ animal[3] }}"/>
+                    <br/>
+                    <label class="" for="age"> Age : </label>
+                    <input class="post-form-input" id="age" value="{{ animal[4] }}"/>
+                    <br/>
+                    <label class="" for="description"> Description : </label>
+                    <textarea class="post-form-textarea" id="description" maxlength="500" rows="4"
+                              cols="25">{{ animal[6] }}</textarea>
+                    <br/>
+
+
+                </div>
+
+                <div class="post-form-wrapper">
+                    <h3>
+                        <div class="post-number-box">2</div>
+                        Media
+                    </h3>
+
+                    <div class="post-uploader" onclick="$('#filePhoto').click()">
+                        clicker or draguer votre image ici
+                        <img id="img" src="/image/{{ animal[7] }}.jpeg"/>
+                        <input type="file" name="userprofile_picture" id="filePhoto" onchange='readURL(this);'/>
+                    </div>
+
+                    <div class="post-form-button-container">
+                        <input class="post-form-button" type="submit" value="Choisir une Image"
+                               onclick="document.getElementById('img_input').click();"/>
+                        <input id="img_input" type="file" accept="image/jpeg" style="display:none"
+                               onchange='readURL(this);'/>
+                    </div>
+
+                    <div class="post-form-button-container">
+                        <input class="post-form-button" type="submit" value="Mettre à jour" onclick="uploadImage()"/>
+                    </div>
+
+                    <div class="post-form-button-container">
+                        <input class="post-form-button" type="submit" value="Supprimer" onclick="delete_post()"/>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

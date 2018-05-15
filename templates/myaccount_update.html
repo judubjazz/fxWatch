@@ -1,0 +1,89 @@
+{% extends "layout_users.html" %}
+{% block head %}
+    <title>Update Account</title>
+    <script src="/static/js/myaccount.js" type="text/javascript"></script>
+    <style>
+        #div1 {
+            width: 350px;
+            height: 70px;
+            padding: 10px;
+            border: 1px solid #aaaaaa;
+        }
+    </style>
+    <script>
+
+    </script>
+{% endblock %}
+
+{% block user_logged %}{% endblock %}
+
+{% block content %}
+    <div class="col-sm-4" id="error" style="color: red"></div>
+            <h2>Mise à jour myaccount</h2>
+
+
+    <br/>
+    <div class="form-group row">
+        <label class="control-label col-sm-2" for="titre">username:</label>
+        <div class="col-sm-4">
+            <input id="username" name="name" type="text" class="form-control" placeholder="username" value="{{ infos[1] }}">
+        </div>
+        <div class="col-sm-4" name="error_username"></div>
+    </div>
+    <br/>
+    <div class="form-group row">
+        <label class="control-label col-sm-2" for="titre">nom:</label>
+        <div class="col-sm-4">
+            <input id="name" name="name" type="text" class="form-control" placeholder="name" value="{{ infos[2] }}">
+        </div>
+        <div class="col-sm-4" id="error_name"></div>
+    </div>
+    <br/>
+    <div class="form-group row">
+        <label class="control-label col-sm-2" for="family_name">prénom:</label>
+        <div class="col-sm-4">
+            <input id="family_name" name="family_name" type="text" class="form-control" placeholder="family_name" value="{{ infos[3] }}"/>
+        </div>
+        <div class="col-sm-4" id="error_family_name"></div>
+    </div>
+    <br/>
+    <div class="form-group row">
+        <label class="control-label col-sm-2" for="phone">téléphone:</label>
+        <div class="col-sm-4">
+            <input id="phone" name="phone" type="text" class="form-control" placeholder="phone" value="{{ infos[4] }}">
+        </div>
+        <div class="col-sm-4" id="error_phone"></div>
+    </div>
+    <br/>
+    <div class="form-group row">
+        <label class="control-label col-sm-2" for="address">adresse</label>
+        <div class="col-sm-4">
+            <input id="address" name="adress" type="text" class="form-control" placeholder="address" value="{{ infos[5] }}"/>
+        </div>
+        <div class="col-sm-4" id="error_address"></div>
+    </div>
+    <br>
+    <div class="form-group row">
+        <label class="control-label col-sm-2" for="password">mot de passe:</label>
+        <div class="col-sm-4">
+            <input id="password" name="password" type="password" class="form-control" placeholder="password">
+        </div>
+        <div class="col-sm-4" id="error_password"></div>
+    </div>
+    <br>
+
+    <div id='div_password' class="form-group row">
+        <label class="control-label col-sm-2" for="retype">retaper le mot de passe:</label>
+        <div class="col-sm-4">
+            <input id="retype" name="check_password" type="password" class="form-control" placeholder="retype">
+        </div>
+        <div class="col-sm-4" id="error_retype"></div>
+    </div>
+    <br>
+    <div class="form-group row">
+        <div class="col-sm-offset-2 col-sm-4">
+            <button type="submit" class="btn btn-default" id="submit" onchange='password_check()' onclick=update_myaccount({{ infos[0] }})>Mettre à jour</button>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends "layout_main.html" %}
+
+{% block head %}
+    <script src="/static/js/search_by_id_result.js" type="text/javascript"></script>
+    <script src="/static/js/index.js" type="text/javascript"></script>
+{% endblock %}
+
+
+{% block content %}
+    <div id="response"></div>
+    <div id="error"></div>
+    {# main component #}
+    <div class="sp-container">
+
+        {% for animal in animals %}
+            {# animal id #}
+            <div id='animal_id' style="display: none">{{ animal[0] }}</div>
+
+
+            <div class="sp-wrapper">
+
+                {# animal name component #}
+                <div class="sp-animal-name-container">
+                    <div class="sp-animal-name-wrapper">
+                        <h2 class="sp-animal-name">Name : {{ animal[1] }}</h2>
+                    </div>
+                </div>
+
+                {# hero component #}
+                <div class="sp-hero-container">
+
+                    {# social media component #}
+                    <div class="sp-socialmedia-container">
+                        <div class="sp-socialmedia-wrapper">
+                            <a class="sp-socialmedia-link fa fa-facebook"></a>
+                            <a class="sp-socialmedia-link fa fa-twitter"></a>
+                            <a class="sp-socialmedia-link fa fa-google"></a>
+                            <a class="sp-socialmedia-link fa fa-pinterest"></a>
+                        </div>
+                    </div>
+
+                    {# image component #}
+                    <div class="sp-hero-image-container">
+
+                        <div class="sp-hero-image-wrapper">
+                            <div class="sp-hero-image-overlay">
+                                <div class="sp-hero-image" style="background-image: url('/image/{{ animal[7] }}.jpeg')"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {# image infos component  #}
+                    <div class="sp-hero-item-attribute-container">
+                        <div id="animal_id" style="display: none">{{ animal[0] }}</div>
+                        <div>
+                            <ul>
+                                <li>date création :{{ animal[5] }}</li>
+                                <li>age : {{ animal[4] }} </li>
+                                <li>race : {{ animal[3] }}</li>
+                                <li>type: {{ animal[2] }}</li>
+                                <li>description: {{ animal[6] }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {# seller components #}
+                    <div class="sp-hero-seller-container">
+                        <div class="sp-seller-info-outterwrapper"></div>
+                        {# seller info component #}
+                        <div class="sp-seller-info-container">
+                            <div class="sp-seller-info-wrapper">
+                                <div class="sp-seller-info-profile-container">
+                                    <header class="sp-seller-profile-header">à propos du proprio</header>
+                                    <div>
+                                        <div class="sp-seller-profile-wrapper">
+                                            <div class="sp-seller-profile-item">
+                                                <span class="sp-seller-profile-item-span"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Contact Seller component  #}
+                        <div class="sp-contact-container">
+                            <h3>Contacter le Propriétaire</h3>
+                            <div class="sp-contact-form-container">
+                                <div class="sp-contact-form-wrapper">
+
+                                    {# input name component #}
+                                    <div class="sp-contact-form-field-container">
+                                        <input class="sp-contact-form-input"
+                                               id='contact_seller_name_input'
+                                               placeholder="votre nom"/>
+                                    </div>
+
+                                    {# input email component #}
+                                    <div class="sp-contact-form-field-container">
+                                        <input class="sp-contact-form-input"
+                                               id='contact_seller_email_input'
+                                               placeholder="votre email"/>
+                                    </div>
+
+                                    {# textarea message component #}
+                                    <div class="sp-contact-form-field-container">
+                                        <textarea class="sp-contact-form-textarea"
+                                                  id='contact_seller_message_input'
+                                                  placeholder="votre message"
+                                                  rows="3">
+                                        </textarea>
+                                    </div>
+
+                                    {#  button send_email component #}
+                                    <div class="sp-contact-form-field-container" style="background-color: #99c663">
+                                        <button class="sp-contact-form-button" onclick="send_email()">Envoyer Email</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    </div>
+{% endblock %}

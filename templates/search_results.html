@@ -1,0 +1,161 @@
+{% extends "layout_main.html" %}
+
+
+{% block head %}
+    <script src="/static/js/index.js" type="text/javascript"></script>
+
+
+{% endblock %}
+
+
+{% block content %}
+
+
+    {% if error %}
+        <div class="help-block">{{ error }}</div>
+    {% endif %}
+
+    {% if not animals %}
+
+        <h2> Désolé, nous n'avons pas trouvé ce que vous cherchez</h2>
+
+    {% else %}
+
+        <div class="sr-container">
+            <div class="sr-wrapper">
+
+                <div class="sr-hero-container">
+                    <div class="sr-hero-wrapper">
+
+                        {# aside component #}
+                        <div class="sr-hero-aside-container">
+                            <div class="sr-hero-aside-wrapper">
+
+                            </div>
+
+                        </div>
+
+                        {# results component #}
+                        <div class="sr-hero-results-container">
+                            <div class="sr-hero-results-wrapper">
+
+                                {% for animal in animals %}
+                                    {% set img_url = '../'+animal[7] %}
+
+                                    {# animal component #}
+                                    <div class="sr-hero-this-result-container" onclick=view_post({{ animal[0] }})>
+                                        <div class="sr-hero-this-result-wrapper">
+                                            <div class="sr-hero-this-result-image-container">
+                                                <div class="sr-hero-this-result-image-wrapper">
+                                                    <img id="animal_src_{{ loop.index }}" src="/image/{{ animal[7] }}.jpeg">
+                                                </div>
+
+                                            </div>
+
+                                            <div class="sr-hero-this-result-info-container">
+                                                <div class="sr-hero-this-result-info-wrapper">
+
+                                                    <div class="sr-hero-this-result-info-header-container">
+                                                        <div class="sr-hero-this-result-info-header-wrapper">
+                                                            <h3 id="animal_name_{{ loop.index }}">
+                                                                Nom: {{ animal[1] }}
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="sr-hero-this-result-info-p-container">
+                                                        <div class="sr-hero-this-result-info-p-wrapper">
+                                                            <p id="animal_date_{{ loop.index }}">{{ animal[5] }} |</p>
+                                                            <p id="animal_age_{{ loop.index }}">age
+                                                                : {{ animal[4] }} |</p>
+                                                            <p id="animal_race_{{ loop.index }}">race
+                                                                : {{ animal[3] }} |</p>
+                                                            <p id="animal_type_{{ loop.index }}">
+                                                                type: {{ animal[2] }} </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="sr-hero-this-result-info-description-container">
+                                                        <div class="sr-hero-this-result-info-description-wrapper">
+                                                            <div id="animal_description_{{ loop.index }}">
+                                                                {{ animal[6] }}</div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+
+                                {% endfor %}
+
+
+                                {# page index component #}
+                                <div id="query" style="display: none">{{ query }}</div>
+                                <div class="page-container">
+                                    <div id="page-wrapper" class="page-wrapper">
+                                        <div class="previous-page" onclick=goto_page(0,'previous',{{ nb_page }})>< Précédante</div>
+                                        {% set nb_page = nb_page + 1%}
+                                        {% for n in range(1,nb_page) %}
+
+                                            <div class="page-number" id="{{ n }}"
+                                                 onclick=goto_page({{ n }},null)>{{ n }}</div>
+                                        {% endfor %}
+                                        <div class="next-page" onclick=goto_page(0,'next',{{ nb_page }})>Suivante ></div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {#        <div>#}
+        {##}
+        {#            {% for animal in animals %}#}
+        {##}
+        {#                <div class="panel panel-primary article pointer_animal" onclick=view_post({{ animal[0] }})>#}
+        {#                    <div class="panel-heading">#}
+        {#                        <h5 class="">#}
+        {#                            <div class="label text-right" id="animal_name_{{ loop.index }}">Name : {{ animal[1] }}</div>#}
+        {#                        </h5>#}
+        {#                    </div>#}
+        {#                    <div class="panel-body">#}
+        {#                        <div class="span"><p id="animal_date_{{ loop.index }}">date created :{{ animal[5] }} </p></div>#}
+        {#                        <div id="animal_age_{{ loop.index }}">age : {{ animal[4] }} </div>#}
+        {#                        <div id="animal_race_{{ loop.index }}">race : {{ animal[3] }}</div>#}
+        {#                        <div id="animal_type_{{ loop.index }}">type: {{ animal[2] }}</div>#}
+        {#                        <div id="animal_description_{{ loop.index }}">description: {{ animal[6] }}</div>#}
+        {#                        <div><img id="animal_src_{{ loop.index }}" src={{ animal_src }}></div>#}
+        {#                    </div>#}
+        {#                </div>#}
+        {##}
+        {#            {% endfor %}#}
+        {#        </div>#}
+
+        {#        <div class="page-container">#}
+        {#            <div id="page-wrapper" class="page-wrapper">#}
+        {#                <div class="previous-page">< Previous</div>#}
+        {#                {% for n in range(1,10) %}#}
+        {#                    <div class="page-number" id="{{ n }}" onclick="goto_page({{ n }},{{ query }})">{{ n }}</div>#}
+        {#                {% endfor %}#}
+        {#                <div class="next-page">Next ></div>#}
+        {#            </div>#}
+        {#        </div>#}
+
+
+    {% endif %}
+
+
+
+{% endblock %}
