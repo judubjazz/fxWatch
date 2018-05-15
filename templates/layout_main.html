@@ -36,14 +36,14 @@
 
                         <div class="header-tools">
                             {% if id %}
-                                <div class="header-button"><a href="http://localhost:5000/myaccount">{{ id }}</a></div>
-                                <div class="header-button"><a href="http://localhost:5000/logout">Logout</a></div>
-                                <div class="header-button"><a href="http://localhost:5000/mypet">myPet</a></div>
-                                <div class="header-post"><a href="http://localhost:5000/post">Afficher</a></div>
+                                <div class="header-button"><a href="https://kajaja.herokuapp.com/myaccount">{{ id }}</a></div>
+                                <div class="header-button"><a href="https://kajaja.herokuapp.com/logout">Logout</a></div>
+                                <div class="header-button"><a href="https://kajaja.herokuapp.com/mypet">myPet</a></div>
+                                <div class="header-post"><a href="https://kajaja.herokuapp.com/post">Afficher</a></div>
                             {% else %}
-                                <div class="header-button"><a href="http://localhost:5000/login">Login</a></div>
-                                <div class="header-button"><a href="http://localhost:5000/register">Register</a></div>
-                                <div class="header-post"><a class="header-post" href="http://localhost:5000/post">Afficher</a></div>
+                                <div class="header-button"><a href="https://kajaja.herokuapp.com/login">Login</a></div>
+                                <div class="header-button"><a href="https://kajaja.herokuapp.com/register">Register</a></div>
+                                <div class="header-post"><a class="header-post" href="https://kajaja.herokuapp.com/post">Afficher</a></div>
 
                             {% endif %}
                             {% block user_logged %}{% endblock %}
@@ -53,7 +53,7 @@
 
                 <div class="search-bar-wrapper">
 
-                    <div class="search-bar" action="http://localhost:5000/search" method="POST">
+                    <div class="search-bar" action="https://kajaja.herokuapp.com/search" method="POST">
                         <div class="search-keyword">
                             <label class="search-label" for="input-keyword"></label>
                             <input id="input-keyword" type="text" class="input-keyword key13"  placeholder="Rechercher un animal...">

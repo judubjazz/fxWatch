@@ -1,5 +1,5 @@
 login = () => {
-    let url = "http://localhost:5000/login";
+    let url = "https://kajaja.herokuapp.com/login";
     let username = document.getElementById('username').value;
     let password = document.getElementById('password').value;
     const requestOptions = {
@@ -25,7 +25,7 @@ login = () => {
 };
 
 forgot_password = () => {
-    window.location = 'http://localhost:5000/password_recovery'
+    window.location = 'https://kajaja.herokuapp.com/password_recovery'
 };
 
 

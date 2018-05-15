@@ -2,7 +2,7 @@
  * get Dom values, set fetch options then fetch
  */
 submit_research = () => {
-    let url = "http://localhost:5000/search";
+    let url = "https://kajaja.herokuapp.com/search";
     let query = document.getElementById('input-keyword').value;
     let filter = document.getElementById('select-option').value;
 

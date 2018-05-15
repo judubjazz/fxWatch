@@ -1,5 +1,5 @@
 send_recovery_email = () => {
-    let url = 'http://localhost:5000/password_recovery';
+    let url = 'https://kajaja.herokuapp.com/password_recovery';
     let user_email = document.getElementById('email').value;
 
     const requestOptions = {
@@ -25,7 +25,7 @@ send_recovery_email = () => {
 };
 
 send_validation = () => {
-    let url = 'http://localhost:5000/password_recovery/validate';
+    let url = 'https://kajaja.herokuapp.com/password_recovery/validate';
     let username = document.getElementById('username').value;
     let password = document.getElementById('password').value;
 

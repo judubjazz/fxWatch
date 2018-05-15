@@ -1,5 +1,5 @@
 update_myaccount = (user_id) => {
-    let url = "http://localhost:5000/myaccount/";
+    let url = "https://kajaja.herokuapp.com/myaccount/";
     let username = document.getElementById('username').value;
     let name = document.getElementById('name').value;
     let family_name = document.getElementById('family_name').value;

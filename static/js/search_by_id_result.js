@@ -1,5 +1,5 @@
 send_email = () => {
-    let url = 'http://localhost:5000/send_email';
+    let url = 'https://kajaja.herokuapp.com/send_email';
     let email = document.getElementById('contact_seller_email_input').value;
     let message = document.getElementById('contact_seller_message_input').value;
     let animal_id = document.getElementById('animal_id').innerHTML;

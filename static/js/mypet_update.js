@@ -57,7 +57,7 @@ delete_post = () => {
 
     let result = confirm("Want to delete?");
     if (result) {
-        let url = "http://localhost:5000/mypet/update";
+        let url = "https://kajaja.herokuapp.com/mypet/update";
         const requestOptions = {
             method: 'DELETE',
             headers: {'Content-Type': 'application/json'},

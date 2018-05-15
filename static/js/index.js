@@ -36,7 +36,7 @@ $(document).ready(function () {
  * get Dom values, set fetch options then fetch
  */
 submit_research = () => {
-    let url = "http://localhost:5000/search";
+    let url = "https://kajaja.herokuapp.com/search";
     let query = document.getElementById('input-keyword').value;
     let filter = document.getElementById('select-option').value;
 
@@ -72,7 +72,7 @@ submit_research = () => {
  * @param animal_id
  */
 view_post = (animal_id) => {
-    window.location = 'http://localhost:5000/animals/' + animal_id;
+    window.location = 'https://kajaja.herokuapp.com/animals/' + animal_id;
 };
 
 /**
@@ -89,15 +89,15 @@ goto_page = (page_number, option, nb_page) => {
         if (page_number >= nb_page) {
             page_number = nb_page - 1
         }
-        window.location = 'http://localhost:5000/search/' + query + '/' + page_number;
+        window.location = 'https://kajaja.herokuapp.com/search/' + query + '/' + page_number;
     } else if (option === 'previous') {
         page_number = parseInt(url[3]) - 1;
         if (page_number < 1) {
             page_number = 1
         }
-        window.location = 'http://localhost:5000/search/' + query + '/' + page_number;
+        window.location = 'https://kajaja.herokuapp.com/' + query + '/' + page_number;
     } else {
-        window.location = 'http://localhost:5000/search/' + query + '/' + page_number;
+        window.location = 'https://kajaja.herokuapp.com/' + query + '/' + page_number;
     }
 
 };

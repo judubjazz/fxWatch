@@ -59,6 +59,7 @@ app.config.update(
 )
 mail = Mail(app)
 
+GLOBAL_URL = "https://kajaja.herokuapp.com"
 ERR_PASSWORD = "Mot de passe ou nom d'utilisateur incorrect"
 ERR_UNAUTH = "Vous devez vous connecter pour avoir accès à cette page"
 ERR_BLANK = "Recherche vide"
@@ -175,7 +176,7 @@ def get_animals_by_query():
     else:
         filter = 'all'
 
-    redirect_url = 'http://localhost:5000/search/' \
+    redirect_url = GLOBAL_URL + '/search/' \
                    + query + '/1' + '?filter=' + filter
     return jsonify(
         {'success': True, 'url': redirect_url, 'filter': filter}), 200
@@ -228,7 +229,7 @@ def login():
 
         user = get_db().get_user_hash_by_username(username)
         if user is None:
-            redirect_url = 'http://localhost:5000/login'
+            redirect_url = GLOBAL_URL + '/login'
             return jsonify({'success': False, 'url': redirect_url,
                             'error': ERR_PASSWORD}), 401
 
@@ -239,10 +240,10 @@ def login():
             id_session = uuid.uuid4().hex
             get_db().save_session(id_session, username)
             session['id'] = id_session
-            redirect_url = 'http://localhost:5000/myaccount'
+            redirect_url = GLOBAL_URL + '/myaccount'
             return jsonify({'success': True, 'url': redirect_url}), 200
         else:
-            redirect_url = 'http://localhost:5000/login'
+            redirect_url = GLOBAL_URL +  '/login'
             return jsonify({'success': False, 'url': redirect_url,
                             'error': ERR_PASSWORD}), 401
     else:
@@ -276,7 +277,7 @@ def register():
                 id_session = uuid.uuid4().hex
                 get_db().save_session(id_session, username)
                 session['id'] = id_session
-                url = 'http://localhost:5000/myaccount'
+                url = GLOBAL_URL + '/myaccount'
 
                 return jsonify({'success': True, 'url': url}), 201
             # Unique constraint must be respected
@@ -348,7 +349,7 @@ def update_mypet():
 
         get_db().update_animal(name, type, race, age, date, description,
                                pic_id, user_id)
-        return_url = 'http://localhost:5000/mypet'
+        return_url = GLOBAL_URL + '/mypet'
         return jsonify({'success': True, 'url': return_url}), 201
 
     elif request.method == 'DELETE':
@@ -405,7 +406,7 @@ def get_myaccount():
             get_db().update_user(id, username, name, family_name, phone,
                                  address, email, salt, hashed_password,
                                  session_username)
-            return_url = 'http://localhost:5000/myaccount'
+            return_url = GLOBAL_URL + '/myaccount'
             return jsonify({'success': True, 'url': return_url}), 201
         except IntegrityError:
             return jsonify({'success': False, 'error': ERR_UNI_USER}), 403
@@ -440,7 +441,7 @@ def post():
 
                 get_db().insert_animal(name, type, race, age, date,
                                        description, pic_id, user_id)
-                return_url = 'http://localhost:5000/mypet'
+                return_url = GLOBAL_URL + '/mypet'
                 return jsonify({'success': True, 'url': return_url}), 201
             except Error:
                 return jsonify({'success': False, 'error': ERR_SERVOR}), 500
@@ -544,7 +545,7 @@ def password_recovery_validate():
         password = request.json['password']
         token = get_db().get_account_token_by_username(username)
         if token is None:
-            redirect_url = 'http://localhost:5000/password_recovery/validate'
+            redirect_url = GLOBAL_URL + '/password_recovery/validate'
             return jsonify({'success': False, 'url': redirect_url,
                             'error': ERR_PASSWORD}), 401
 
@@ -562,10 +563,10 @@ def password_recovery_validate():
             id_session = uuid.uuid4().hex
             get_db().save_session(id_session, username)
             session['id'] = id_session
-            redirect_url = 'http://localhost:5000/myaccount'
+            redirect_url = GLOBAL_URL + '/myaccount'
             return jsonify({'success': True, 'url': redirect_url}), 201
         else:
-            redirect_url = 'http://localhost:5000/password_recovery/validate'
+            redirect_url = GLOBAL_URL + '/password_recovery/validate'
             return jsonify({'success': False,
                             'url': redirect_url,
                             'error': ERR_PASSWORD}), 401

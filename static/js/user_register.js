@@ -1,5 +1,5 @@
 register = () => {
-    let url = "http://localhost:5000/register";
+    let url = "https://kajaja.herokuapp.com/register";
     let username = document.getElementById('username').value;
     let name = document.getElementById('name').value;
     let family_name = document.getElementById('family_name').value;

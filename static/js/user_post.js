@@ -4,7 +4,7 @@
  * @param base64
  */
 post_ad = (base64) => {
-    let url = "http://localhost:5000/post";
+    let url = "https://kajaja.herokuapp.com/post";
     let name = document.getElementById('name').value;
     let type = document.getElementById('type').value;
     let race = document.getElementById('race').value;
