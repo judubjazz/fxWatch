@@ -5,7 +5,7 @@
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
+del, dfn, em, img, ins, kbd, q, s, samp,.logo-wrapper
 small, strike, strong, sub, sup, tt, var,
 b, u, i, center,
 dl, dt, dd, ol, ul, li,
@@ -148,7 +148,6 @@ h2{
 .user-account-button-container button{
     position: relative;
     vertical-align: top;
-    background-color: #99C663;
     border-radius: 4px;
     box-sizing: border-box;
     color: white;
@@ -158,6 +157,13 @@ h2{
     text-decoration: none;
 }
 
+.user-account-button-save{
+        background-color: green;
+}
+
+.user-account-button-cancel{
+        background-color: #FF0000;
+}
 .user-account-button-container span{
     margin:0px 5px 0px 5px;
 }
@@ -254,7 +260,7 @@ h2{
     height: 20px;
     width: 20px;
     padding-top: 3px;
-    background-color: #70a036;
+    background-color: #000000;
     border: 0;
     margin-right: 10px;
     border-radius: 5px;
@@ -297,7 +303,7 @@ h2{
 .post-form-button{
     font-family: Larsseit,"Helvetica Neue",Helvetica,Arial,Sans-serif;
     border-radius: 4px;
-    background-color: #99C663;
+    background-color: #FF0000;
     font-size: 15px;
     text-align: center;
     color: #fff;
@@ -313,7 +319,7 @@ h2{
     border: 1px #DEDEE1 solid;
     border-radius: 2px;
     box-sizing: border-box;
-    color: #3E414F;
+    color: #CCCCCC;
     font-family: inherit;
     font-size: 15px;
     height: 45px;
@@ -329,7 +335,7 @@ h2{
 
 .header-container {
     box-sizing: border-box;
-    color: #000066;
+    color: #CCCCCC;
     font-family: Larsseit, Arial, sans-serif;
     position: relative;
     width: 100%;
@@ -350,7 +356,6 @@ h2{
     font-size: 15px;
     line-height: 45px;
     text-align: right;
-
 }
 
 .header-button {
@@ -358,6 +363,7 @@ h2{
     position: relative;
     vertical-align: top;
     justify-content: space-between;
+    font-weight: bold;
 }
 .header-button a {
     color: white;
@@ -367,7 +373,7 @@ h2{
     justify-content: space-between;
     position: relative;
     vertical-align: top;
-    background-color: #99C663;
+    background-color: #FF0000;
     border-radius: 4px;
     box-sizing: border-box;
     color: white;
@@ -419,7 +425,7 @@ h2{
     border: 1px #DEDEE1 solid;
     border-radius: 2px;
     box-sizing: border-box;
-    color: #3E414F;
+    color: #CCCCCC;
     font-family: inherit;
     font-size: 15px;
     height: 45px;
@@ -452,7 +458,7 @@ h2{
 }
 
 .search-submit {
-    background-color: #99c663;
+    background-color: #FF0000;
     border: 0;
     border-radius: 0 2px 2px 0;
     color: #ffffff;
@@ -479,7 +485,7 @@ h2{
 /*Logo */
 
 .logo-bar-wrapper {
-    background-color: #403E7C;
+    background-color: #CCCCCC;
     resize: none;
 }
 
@@ -497,18 +503,25 @@ h2{
 
 .logo-wrapper{
 
-    height: 30px;
+    height: 50px;
     width: 150px;
+}
+
+.logo-wrapper img{
 
 }
+
 .logo svg {
     height: 75px;
     width: 200px;
 
 }
 .logo img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 500%;
+    max-height: 500%;
+    position: relative;
+    margin-top: -180px;
+    margin-left: -100px;
 }
 
 .logo svg path {
@@ -524,6 +537,21 @@ h2{
     fill: #ffffff !important;
 }
 
+/*daily rates card slider*/
+.daily-rates-card-slider-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 20px;
+    margin-bottom: -20px;
+    white-space: nowrap;
+}
+
+.daily-rates-card-wrapper{
+    display: inline-block;
+}
 
 /*index page card slider*/
 .empty-card-spacer {
@@ -531,12 +559,14 @@ h2{
 }
 
 .card-slider-container {
-    box-sizing: border-box;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 20px;
+    margin-left: 200px;
+    margin-right: 200px;
     margin-bottom: -20px;
     white-space: nowrap;
 }
@@ -547,7 +577,7 @@ h2{
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
     text-decoration: none;
     transition: all ease-in 100ms;
-    color: #3E414F;
+    color: #CCCCCC;
     font-weight: bold;
     display: block;
     flex: 1;
@@ -562,7 +592,7 @@ h2{
     display: flex;
     flex-basis: 0;
     flex-grow: 1;
-    flex-direction: column;
+    flex-direction: row;
     min-width: 100%;
     padding-left: 10px;
     padding-right: 10px;
@@ -597,7 +627,7 @@ h2{
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
     text-decoration: none;
     transition: all ease-in 100ms;
-    color: #3E414F;
+    color: #CCCCCC;
     font-weight: bold;
     display: block;
     flex: 1;
@@ -608,14 +638,16 @@ h2{
 }
 
 .card-title {
-
+    font-weight: bold;
+    color: black;
+    text-align: center;
 }
 
 .card-info {
     font-size: 16px;
     font-weight: normal;
     line-height: 16px;
-    color: #70A036;
+    color: #000000;
     display: block;
     margin: 20px;
     overflow: hidden;
@@ -815,7 +847,7 @@ https://bootsnipp.com/snippets/e3QvQ
 }
 
 .sp-animal-name-container {
-    color: #3E414F;
+    color: #CCCCCC;
     font-family: Larsseit, Arial, sans-serif;
     margin-bottom: 40px;
     margin-top: 20px;
@@ -829,7 +861,7 @@ https://bootsnipp.com/snippets/e3QvQ
     font-size: 22px;
     font-weight: bold;
     line-height: 26px;
-    color: #3E414F;
+    color: #CCCCCC;
     font-family: inherit;
     margin-bottom: 0;
     margin-top: 0;
@@ -990,7 +1022,7 @@ https://bootsnipp.com/snippets/e3QvQ
     font-size: 15px;
     font-weight: bold;
     line-height: 20px;
-    color: #3E414F;
+    color: #CCCCCC;
     padding: 0px 10px 15px 10px;
     text-align: center;
     overflow-wrap: break-word;
@@ -1024,7 +1056,7 @@ https://bootsnipp.com/snippets/e3QvQ
 
 .sp-contact-container h3 {
     box-sizing: border-box;
-    color: #3E414F;
+    color: #CCCCCC;
     font-size: 15px;
     line-height: 50px;
     margin: 0;
@@ -1063,7 +1095,7 @@ https://bootsnipp.com/snippets/e3QvQ
     border: 1px solid #DEDEE1;
     border-radius: 2px;
     box-sizing: border-box;
-    color: #3E414F;
+    color: #CCCCCC;
     display: block;
     font-family: Larsseit, Arial, sans-serif;
     font-size: 15px;
@@ -1081,7 +1113,7 @@ https://bootsnipp.com/snippets/e3QvQ
     border: 1px solid #DEDEE1;
     border-radius: 2px;
     box-sizing: border-box;
-    color: #3E414F;
+    color: #CCCCCC;
     display: block;
     font-family: Larsseit, Arial, sans-serif;
     font-size: 15px;
@@ -1196,3 +1228,7 @@ https://bootsnipp.com/snippets/e3QvQ
 }
 
 /*TODO register page*/
+/* Login */
+.user-login-button-container {
+    display: flex;
+}

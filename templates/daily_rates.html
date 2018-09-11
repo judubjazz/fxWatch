@@ -1,0 +1,41 @@
+{% extends "layout_main.html" %}
+{% block head %}<script src="/static/js/index.js" type="text/javascript"></script> {% endblock %}
+{% block content %}
+    {% if error %}
+        <div class="help-block" id="error">{{ error }}</div>
+    {% endif %}
+    {% if not days %}
+        <p>empty db.</p>
+
+    {% else %}
+
+<div class="daily-rates-card-slider-container">
+
+    {% for day in days %}
+    <div class="empty-card-spacer">
+        <div class="card-container-spacer">
+            <div class="card-container-wrapper">
+                <div class="card-container" onclick= window.location.href="{{ url_for('get_daily_rate',id=day.id) }}">
+                    {%- set day_data = day.data|string_to_dict %}
+                    <span class="card-info" id="rate_date_{{ loop.index }}">date created : {{ day['date_created'] }}</span>
+                    {% for rate in day_data %}
+                        <div class="daily-rates-card-wrapper">
+                            <h4 class="card-title" id="rate_name_{{ loop.index }}">{{ rate.symbol}} </h4>
+                            <span class="card-info" id="rate_bid_{{ loop.index }}">Bid :{{ rate['bid'] }} </span>
+                            <span class="card-info" id="rate_age_{{ loop.index }}">Ask : {{ rate['ask'] }}</span>
+                            <span class="card-info" id="rate_average_{{ loop.index }}">Avg : {{ rate['average'] }}</span>
+                            <span class="card-info" id="rate_delta_{{ loop.index }}">Delta : {{ rate['delta'] }}</span>
+                        </div>
+
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endfor %}
+</div>
+
+
+
+{% endif %} {% endblock %}

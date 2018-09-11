@@ -1,28 +1,27 @@
 # coding: utf8
 
-from flask import Flask
-from flask import render_template
-from flask import g
-from flask import request
-from flask import make_response
-from flask import redirect
-from flask import session
-from flask import Response
-from flask import jsonify
+import ast
+import datetime
+import hashlib
+import math
+import os.path
+import random
+import uuid
+from binascii import a2b_base64
+from decimal import Decimal, getcontext
+from functools import wraps
+from smtplib import SMTPException
+from sqlite3 import IntegrityError, Error
+from urllib.request import Request, urlopen
+from xml.dom import minidom
+from apscheduler.schedulers.background import BackgroundScheduler
+from flask import Flask, render_template, g, request, make_response, redirect, session, Response, jsonify
 # from flask_cors import CORS
 from flask_mail import Mail, Message
 from database import Database
-from functools import wraps
-from binascii import a2b_base64
-from smtplib import SMTPException
-import hashlib
-import uuid
-import io
-import os.path
-import datetime
-import random
-import math
-from sqlite3 import IntegrityError, Error
+
+now = datetime.datetime.now()
+dayID = 1
 
 
 def config_mail():
@@ -49,7 +48,7 @@ app = Flask(__name__)
 # cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config.update(
-    DEBUG=True,
+    DEBUG=False,
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=465,
     MAIL_USE_SSL=True,
@@ -59,33 +58,26 @@ app.config.update(
 )
 mail = Mail(app)
 
-GLOBAL_URL = "https://kajaja.herokuapp.com"
-ERR_PASSWORD = "Mot de passe ou nom d'utilisateur incorrect"
-ERR_UNAUTH = "Vous devez vous connecter pour avoir accès à cette page"
-ERR_BLANK = "Recherche vide"
-ERR_FORM = 'Le formulaire doit être rempli'
-ERR_UNI_USER = "Le nom d'utilisateur existe déjà, choississez un autre nom"
-ERR_UNI_POST = "Vous avez déjà un animal en attente d'adoption"
+# GLOBAL_URL = "https://kajaja.herokuapp.com"
+GLOBAL_URL = "http://127.0.0.1:5000"
+ERR_PASSWORD = "Password or email invalid"
+ERR_UNAUTH = "Please log in"
+ERR_BLANK = "Empty query"
+ERR_FORM = 'The form must be filled'
+ERR_UNI_USER = "This username already exists, please choose another one"
 ERR_NODATA = "Nous n'avons pas trouvé ce que vous cherchez"
-ERR_SERVOR = "La transaction n'a pas été effectuée"
+ERR_SERVOR = "transaction was unsuccessfull"
 ERR_NOPOST = "Vous n'avez pas d'annonce affichée"
-ERR_404 = "Cette page n'existe pas"
-
-INFO_DEL = "Votre annonce a été supprimée"
-INFO_MSG_SENT_ADOPTION = "Un email a été envoyé au propriétaire."\
-                         " Souvenez-vous ! " \
-                         "Adopter un animal est un contract à vie."
-INFO_MSG_SENT_RECOVERY = "Récupérer votre mot de passe" \
-                         " dans votre boite à courriels"
-INFO_MAIL_SUBJECT = "Quelqu'un est interressé  à adopter votre animal," \
-                    " contacter >>  "
-INFO_MAIL_RECOVER_SUBJECT = "Récupérer votre mot de passe"
-INFO_MAIL_RECOVER_BODY = "Suivez ce lien " \
-                         "http://localhost:5000/password_recovery/validate " \
-                         "et connectez-vous avec ce mot de passe : "
+ERR_404 = "This page does not exist"
+INFO_MSG_SENT_ADOPTION = "An email has been sent."
+INFO_MSG_SENT_RECOVERY = "Check you rmail box to recover your password."
+INFO_MAIL_SUBJECT = "fxRates alert  "
+INFO_MAIL_RECOVER_SUBJECT = "Recover your password"
+INFO_MAIL_RECOVER_BODY = "follow this link http://localhost:5000/password_recovery/validate then enter this password : "
 
 
-def get_db():
+
+def db():
     db = getattr(g, '_database', None)
     if db is None:
         g._database = Database()
@@ -99,11 +91,10 @@ def close_connection(exception):
         db.disconnect()
 
 
-@app.template_filter('b64decode')
-def b64decode(value):
-    print(value)
-    resp = io.StringIO(value['bin'])
-    return resp
+@app.template_filter('string_to_dict')
+def string_to_dict(value):
+    response = ast.literal_eval(value)
+    return response
 
 
 def authentication_required(f):
@@ -124,31 +115,128 @@ def is_authenticated(session):
 def send_unauthorized():
     error = ERR_UNAUTH
     return render_template('user_login.html', error=error), 401
-    # return Response('Could not verify your access level for that URL.\n'
-    #                 'You have to login with proper credentials', 401,
-    #                 {'WWW-Authenticate': 'Basic realm="Login Required"'})
+    # return Response('Could not verify your access level for that URL.\n''You have to login with proper credentials', 401,{'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 
 def get_username():
     if 'id' in session:
-        return get_db().get_session_username_by_id_session(session['id'])
+        return db().get_session_username_by_id_session(session['id'])
     return None
 
 
-@app.route('/')
-def start():
-    animals_random = get_db().get_five_random_animals()
+def is_time_to_update(date):
+    ## TODO check heroku datetime
+    if date.hour < 3 or date.hour > 17:
+        return False
+    return True
 
+
+def check_rates(rates):
+    my_rates = db().get_rates()
+    if my_rates is None:
+        db().insert_rates(rates)
+
+
+@app.route('/')
+@authentication_required
+def start():
+    rates = db().get_rates()
     if 'id' in session:
-        return render_template('index.html', animals=animals_random,
-                               id=get_username())
-    return render_template('index.html', animals=animals_random)
+        return render_template('my_rates.html', rates=rates, id=get_username())
+    return render_template('my_rates.html', rates=rates)
+
+
+def get_current_rates():
+    url = "https://rates.fxcm.com/RatesXML"
+    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    xml = urlopen(req)
+    dom = minidom.parse(xml)
+    xml_rates = dom.getElementsByTagName('Rate')
+    rates = []
+    symbol_preferences = ['EURCAD', 'EURUSD', 'EURAUD', 'EURCHF', 'AUDCAD', 'UADUSD', 'AUDCHF', 'USDCHF', 'USDCAD', 'CADCHF']
+    date = now.strftime('%Y-%m-%d %H:%M')
+    for rate in xml_rates:
+        symbol = rate.attributes['Symbol'].value
+        if symbol in symbol_preferences:
+            bid = rate.getElementsByTagName('Bid')
+            ask = rate.getElementsByTagName('Ask')
+            bid = bid[0].firstChild.data
+            ask = ask[0].firstChild.data
+            # precision for Decimal type
+            getcontext().prec = 8
+            decimal_bid = Decimal(bid)
+            decimal_ask = Decimal(ask)
+            average = (decimal_bid + decimal_ask) / 2
+            delta = decimal_bid - decimal_ask
+            data = {'symbol': symbol, 'bid': float(bid), 'ask': float(ask), 'average': float(average), 'delta': str(delta), 'date_created': date}
+            rates.append(data)
+    # to populate db
+    # db().insert_rates(rates)
+    return rates
+
+
+@app.route('/currentRates')
+def current_rates():
+    rates = get_current_rates()
+    if 'id' in session:
+        return render_template('my_rates.html', rates=rates, id=get_username())
+    return render_template('my_rates.html', rates=rates)
+
+
+@app.route('/dailyRates')
+@authentication_required
+def daily_rates():
+    days = db().get_daily_rates()
+    if 'id' in session:
+        return render_template('daily_rates.html', days=days, id=get_username())
+    return render_template('daily_rates.html', days=days)
+
+
+@app.route('/dailyRates/<int:id>')
+@authentication_required
+def get_daily_rate(id):
+    rate = db().get_daily_rate_by_id(id)
+    if 'id' in session:
+        return render_template('daily_rate.html', days=rate, id=get_username())
+    return render_template('daily_rate.html', days=rate)
+
+
+@app.route('/<symbol>')
+@authentication_required
+def get_symbol(symbol):
+    symbol_preferences = ['EURCAD', 'EURUSD', 'EURAUD', 'EURCHF', 'AUDCAD', 'UADUSD', 'AUDCHF', 'USDCHF', 'USDCAD', 'CADCHF']
+    if symbol in symbol_preferences:
+        rates = db().get_rates_like(symbol)
+        return render_template('my_rate_by_symbol.html', rates=rates)
+    return render_template('404.html', error=ERR_404), 404
+
+
+def update_rates():
+    if is_time_to_update(now):
+        with app.app_context():
+            my_rates = db().get_rates()
+            current_rates = get_current_rates()
+            for one_of_my_rate in my_rates:
+                for one_of_current_rates in current_rates:
+                    if one_of_my_rate['symbol'] == one_of_current_rates['symbol']:
+                        if one_of_my_rate['bid'] != one_of_current_rates['bid'] or one_of_my_rate['ask'] != one_of_current_rates['ask']:
+                            db().update_rate(one_of_current_rates)
+
+
+def update_daily_rates():
+    global dayID
+    if dayID == 76:
+        dayID = 1
+    with app.app_context():
+        my_rates = db().get_rates()
+        date_created = now.strftime('%Y-%m-%d')
+        db().update_daily_rates(dayID, my_rates, date_created)
+        dayID += 1
 
 
 @app.route('/image/<pic_id>.jpeg')
 def download_picture(pic_id):
-    db = get_db()
-    binary_data = db.get_pictures_imgdata(pic_id)
+    binary_data = db().get_pictures_imgdata(pic_id)
     if binary_data is None:
         return Response(status=404)
     else:
@@ -158,7 +246,7 @@ def download_picture(pic_id):
 
 
 @app.route('/search', methods=['POST'])
-def get_animals_by_query():
+def get_rates_by_query():
     query = request.json['query']
     filter = int(request.json['filter'])
 
@@ -176,45 +264,8 @@ def get_animals_by_query():
     else:
         filter = 'all'
 
-    redirect_url = GLOBAL_URL + '/search/' \
-                   + query + '/1' + '?filter=' + filter
-    return jsonify(
-        {'success': True, 'url': redirect_url, 'filter': filter}), 200
-
-
-@app.route('/search/<query>/<int:page>', methods=['GET'])
-def get_animals_by_page(query, page):
-    filter = request.args.get('filter')
-    data = get_db().get_animals_like_query(query, filter)
-
-    # TODO optimize to not fetch all data
-    nb_page = math.ceil(len(data) / 5)
-    # page number verification
-    if page > nb_page:
-        page = nb_page
-    elif page < 1:
-        page = 1
-
-    # 5 images per page
-    end = page * 5
-    start = end - 5
-    animals = data[start:end]
-
-    return render_template('search_results.html', animals=animals,
-                           id=get_username(), query=query,
-                           nb_page=nb_page), 200
-
-
-@app.route('/animals/<int:animal_id>', methods=['GET'])
-def get_animal_by_id(animal_id):
-    animals = get_db().get_animals_by_id(animal_id)
-    username = get_username()
-    if animals is None:
-        return render_template('search_result_by_id.html',
-                               error='no results'), 204
-    else:
-        return render_template('search_result_by_id.html', animals=animals,
-                               id=username), 200
+    redirect_url = GLOBAL_URL + '/search/' + query + '/1' + '?filter=' + filter
+    return jsonify({'success': True, 'url': redirect_url, 'filter': filter}), 200
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -227,24 +278,24 @@ def login():
         if request_data_is_invalid(username=username, password=password):
             return jsonify({'success': False, 'error': ERR_FORM}), 400
 
-        user = get_db().get_user_hash_by_username(username)
+        user = db().get_user_hash_by_username(username)
         if user is None:
             redirect_url = GLOBAL_URL + '/login'
-            return jsonify({'success': False, 'url': redirect_url,
-                            'error': ERR_PASSWORD}), 401
+            return jsonify({'success': False, 'url': redirect_url,'error': ERR_PASSWORD}), 401
 
         salt = user[0]
         hashed_password = hashlib.sha512(
             str(password + salt).encode('utf-8')).hexdigest()
         if hashed_password == user[1]:
             id_session = uuid.uuid4().hex
-            get_db().save_session(id_session, username)
+            db().save_session(id_session, username)
             session['id'] = id_session
             redirect_url = GLOBAL_URL + '/myaccount'
             return jsonify({'success': True, 'url': redirect_url}), 200
         else:
-            redirect_url = GLOBAL_URL +  '/login'
-            return jsonify({'success': False, 'url': redirect_url,
+            redirect_url = GLOBAL_URL + '/login'
+            return jsonify({'success': False, 
+                            'url': redirect_url,
                             'error': ERR_PASSWORD}), 401
     else:
         return render_template('user_login.html')
@@ -254,28 +305,18 @@ def login():
 def register():
     if request.method == 'POST':
         username = request.json['username']
-        name = request.json['name']
-        family_name = request.json['family_name']
-        phone = request.json['phone']
-        address = request.json['address']
         password = request.json['password']
         email = request.json['email']
 
-        # data validation
-        if request_data_is_invalid(username=username, name=name,
-                                   family_name=family_name, phone=phone,
-                                   address=address, password=password,
-                                   email=email):
+        if request_data_is_invalid(username=username, password=password, email=email):
             return jsonify({'success': False, 'error': ERR_FORM}), 400
         else:
             try:
                 salt = uuid.uuid4().hex
-                hashed_password = hashlib.sha512(
-                    str(password + salt).encode('utf-8')).hexdigest()
-                get_db().create_user(username, name, family_name, phone,
-                                     address, email, salt, hashed_password)
+                hashed_password = hashlib.sha512(str(password + salt).encode('utf-8')).hexdigest()
+                db().create_user(username, email, salt, hashed_password)
                 id_session = uuid.uuid4().hex
-                get_db().save_session(id_session, username)
+                db().save_session(id_session, username)
                 session['id'] = id_session
                 url = GLOBAL_URL + '/myaccount'
 
@@ -283,7 +324,6 @@ def register():
             # Unique constraint must be respected
             except IntegrityError:
                 return jsonify({'success': False, 'error': ERR_UNI_USER}), 403
-
     else:
         return render_template('user_register.html'), 200
 
@@ -294,72 +334,9 @@ def logout():
     if 'id' in session:
         id_session = session['id']
         session.pop('id', None)
-        get_db().delete_session(id_session)
+        db().delete_session(id_session)
     return redirect('/')
 
-
-@app.route('/mypet', methods=['GET'])
-@authentication_required
-def mypet():
-    if request.method == 'GET':
-        id = get_db().get_user_id_by_id_session(session['id'])
-        animals = get_db().get_animals_by_owner_id(id)
-        if len(animals) == 0:
-            return render_template('mypet.html', error=ERR_NOPOST), 400
-        else:
-            return render_template('mypet.html', id=get_username(),
-                                   animals=animals), 200
-
-
-@app.route('/mypet/update', methods=['GET', 'UPDATE', 'DELETE'])
-@authentication_required
-def update_mypet():
-    if request.method == 'GET':
-        id = get_db().get_user_id_by_id_session(session['id'])
-        animals = get_db().get_animals_by_owner_id(id)
-        return render_template('mypet_update.html', id=get_username(),
-                               animals=animals)
-    elif request.method == 'UPDATE':
-        # get request data
-        name = request.json['name']
-        type = request.json['type']
-        race = request.json['race']
-        age = request.json['age']
-        date = datetime.datetime.now().strftime('%Y-%m-%d')
-        description = request.json['description']
-        img_uri = request.json['img']
-
-        if request_data_is_invalid(name=name, type=type, race=race, age=age,
-                                   description=description):
-            return jsonify({'success': False, 'error': ERR_FORM}), 400
-
-        # front end send data_uri as data:image/base64,XXX
-        # where xxx is the blob in string format
-        listed_img_uri = img_uri.split(',')
-        img_base64_tostring = listed_img_uri[1]
-
-        # will not be updated if empty
-        pic_id = ''
-        user_id = get_db().get_user_id_by_id_session(session['id'])
-        # the photo has been updated
-        if len(img_base64_tostring) > 0:
-            # TODO add image extention possibilities
-            pic_id = get_username()
-            get_db().update_pictures(pic_id, img_uri)
-
-        get_db().update_animal(name, type, race, age, date, description,
-                               pic_id, user_id)
-        return_url = GLOBAL_URL + '/mypet'
-        return jsonify({'success': True, 'url': return_url}), 201
-
-    elif request.method == 'DELETE':
-        user_id = get_db().get_user_id_by_id_session(session['id'])
-        pic_id = get_username()
-        try:
-            get_db().delete_animal(user_id, pic_id)
-            return jsonify({'success': True, 'msg': INFO_DEL}), 201
-        except Error:
-            return jsonify({'success': False, 'error': ERR_SERVOR}), 500
 
 
 def request_data_is_invalid(**kwargs):
@@ -373,86 +350,36 @@ def request_data_is_invalid(**kwargs):
 @authentication_required
 def get_myaccount():
     if request.method == 'GET':
-        user_info = get_db().get_user_info_by_username(get_username())
+        user_info = db().get_user_info_by_username(get_username())
         if user_info is None:
-            return render_template('index.html', error=ERR_UNAUTH), 204
+            return render_template('my_rates.html', error=ERR_UNAUTH), 204
         else:
-            return render_template('myaccount.html', id=get_username(),
-                                   infos=user_info), 200
+            return render_template('myaccount.html', id=get_username(), infos=user_info), 200
     elif request.method == 'UPDATE':
-        # get request data
         username = request.json['username']
-        name = request.json['name']
-        family_name = request.json['family_name']
-        phone = request.json['phone']
-        address = request.json['address']
         password = request.json['password']
 
-        if request_data_is_invalid(username=username, name=name,
-                                   family_name=family_name, phone=phone,
-                                   address=address,
-                                   password=password):
+        if request_data_is_invalid(username=username, password=password):
             return jsonify({'success': False, 'error': ERR_FORM}), 400
 
         try:
             session_username = get_username()
-            email = get_db().get_user_email_by_username(get_username())
+            email = db().get_user_email_by_username(get_username())
 
-            id = get_db().get_user_id_by_id_session(session['id'])
+            id = db().get_user_id_by_id_session(session['id'])
             salt = uuid.uuid4().hex
-            hashed_password = hashlib.sha512(
-                str(password + salt).encode('utf-8')).hexdigest()
+            hashed_password = hashlib.sha512(str(password + salt).encode('utf-8')).hexdigest()
 
-            get_db().update_user(id, username, name, family_name, phone,
-                                 address, email, salt, hashed_password,
-                                 session_username)
+            db().update_user(id, username, email, salt, hashed_password, session_username)
             return_url = GLOBAL_URL + '/myaccount'
             return jsonify({'success': True, 'url': return_url}), 201
         except IntegrityError:
             return jsonify({'success': False, 'error': ERR_UNI_USER}), 403
 
 
-@app.route('/post', methods=['POST', 'GET'])
-@authentication_required
-def post():
-    if request.method == 'POST':
-        # get request data
-        name = request.json['name']
-        type = request.json['type']
-        race = request.json['race']
-        age = request.json['age']
-        date = datetime.datetime.now().strftime('%Y-%m-%d')
-        description = request.json['description']
-        img_uri = request.json['img']
-
-        if request_data_is_invalid(name=name, type=type, race=race,
-                                   address=age, password=description):
-            return jsonify({'success': False, 'error': ERR_FORM}), 400
-
-        # to prevent collision
-        user_id = get_db().get_user_id_by_id_session(session['id'])
-        if user_has_already_posted(user_id):
-            return jsonify({'success': False, 'error': ERR_UNI_POST}), 401
-        else:
-            pic_id = get_username()
-            try:
-                get_db().insert_pictures(pic_id, img_uri)
-                # img_url = img_path
-
-                get_db().insert_animal(name, type, race, age, date,
-                                       description, pic_id, user_id)
-                return_url = GLOBAL_URL + '/mypet'
-                return jsonify({'success': True, 'url': return_url}), 201
-            except Error:
-                return jsonify({'success': False, 'error': ERR_SERVOR}), 500
-
-    elif request.method == 'GET':
-        return render_template('user_post.html', id=get_username()), 200
-
-
 def user_has_already_posted(user_id):
-    animals = get_db().get_animals_by_owner_id(user_id)
-    if len(animals) > 0:
+    rates = db().get_rates_by_owner_id(user_id)
+    if len(rates):
         return True
     return False
 
@@ -483,22 +410,6 @@ def save_image_on_disc(**kwargs):
     return path
 
 
-@app.route('/api/animal_list', methods=['GET'])
-def api_animal_list():
-    animals = get_db().get_all_animals()
-    if animals is None:
-        return jsonify({'error': 'no animals'}), 204
-    data = []
-    for animal in animals:
-        address = get_db().get_user_adresse_by_animal_id(animal[0])
-        animal_dict = {'id': animal[0], 'name': animal[1], 'type': animal[2],
-                       'race': animal[3], 'age': animal[4],
-                       'date_creation': animal[5], 'description': animal[6],
-                       'address': address}
-        data.append(animal_dict)
-    return jsonify(data), 200
-
-
 @app.route('/password_recovery', methods=['POST', 'GET'])
 def password_recovery():
     if request.method == 'POST':
@@ -514,11 +425,11 @@ def password_recovery():
 
 def send_recovery_email():
     user_email = request.json['email']
-    username = get_db().get_user_username_by_email(user_email)
+    username = db().get_user_username_by_email(user_email)
     if username:
         token = generate_token()
-        date = datetime.datetime.now().strftime('%Y-%m-%d')
-        get_db().create_account(username, user_email, token, date)
+        date = now.strftime('%Y-%m-%d')
+        db().create_account(username, user_email, token, date)
         subject = INFO_MAIL_RECOVER_SUBJECT
         msg = Message(subject, recipients=[user_email])
         msg.body = INFO_MAIL_RECOVER_BODY + token
@@ -543,25 +454,25 @@ def password_recovery_validate():
     if request.method == 'POST':
         username = request.json['username']
         password = request.json['password']
-        token = get_db().get_account_token_by_username(username)
+        token = db().get_account_token_by_username(username)
         if token is None:
             redirect_url = GLOBAL_URL + '/password_recovery/validate'
-            return jsonify({'success': False, 'url': redirect_url,
+            return jsonify({'success': False, 
+                            'url': redirect_url,
                             'error': ERR_PASSWORD}), 401
 
         if password == token:
             # update user
-            infos = get_db().get_user_info_by_username(username)
+            infos = db().get_user_info_by_username(username)
             user_id = infos[0]
             salt = uuid.uuid4().hex
-            hashed_password = hashlib.sha512(
-                str(token + salt).encode('utf-8')).hexdigest()
-            get_db().update_user_password(user_id, salt, hashed_password)
+            hashed_password = hashlib.sha512(str(token + salt).encode('utf-8')).hexdigest()
+            db().update_user_password(user_id, salt, hashed_password)
             # delete account
-            get_db().delete_account_by_username(username)
+            db().delete_account_by_username(username)
             # update session
             id_session = uuid.uuid4().hex
-            get_db().save_session(id_session, username)
+            db().save_session(id_session, username)
             session['id'] = id_session
             redirect_url = GLOBAL_URL + '/myaccount'
             return jsonify({'success': True, 'url': redirect_url}), 201
@@ -584,7 +495,7 @@ def send_email():
     if request_data_is_invalid(sender_email=sender_email, animal_id=animal_id):
         return jsonify({'success': False, 'error': ERR_FORM}), 400
 
-    recipient = get_db().get_user_email_by_animal_id(animal_id)
+    recipient = db().get_user_email_by_animal_id(animal_id)
     msg = Message(subject, recipients=[recipient])
     msg.body = msg_body
     try:
@@ -602,4 +513,9 @@ def page_not_found(e):
 app.secret_key = '(*&*&322387he738220)(*(*22347657'
 
 if __name__ == '__main__':
-    app.run()
+    sched = BackgroundScheduler()
+    sched.add_job(update_rates, 'interval', minutes=15)
+    sched.add_job(update_daily_rates, 'cron', hour=14, minute=24)
+    # sched.add_job(update_daily_rates, 'interval', minutes=.1)
+    sched.start()
+    app.run(use_reloader=False)

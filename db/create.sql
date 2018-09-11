@@ -1,28 +1,9 @@
 create table Users (
   id integer primary key,
   username varchar(32) UNIQUE,
-  name varchar(32),
-  family_name varchar(32),
-  phone varchar(32),
-  address varchar(128),
   email varchar(32) UNIQUE,
   salt varchar(32),
   hash varchar(128)
-);
-
-create table Animal (
-  id integer primary key,
-  name varchar(64),
-  type varchar(32),
-  race varchar(32),
-  age integer,
-  date_creation date,
-  description varchar(512),
-  pic_id varchar(32),
-  owner_id integer,
-  FOREIGN KEY (owner_id) REFERENCES Users(id)
-  ON DELETE NO ACTION
-  ON UPDATE CASCADE
 );
 
 create table sessions (
@@ -31,18 +12,121 @@ create table sessions (
   username varchar(32)
 );
 
-create table Account (
+
+create table Rates (
   id integer primary key,
-  username varchar(32) UNIQUE,
-  email varchar(32) UNIQUE,
-  token varchar(32),
-  date_sent text
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
 );
 
-create table Pictures (
-  pic_id varchar(32) primary key,
-  img_data blob
+create table Eurcad (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
 );
 
+create table Eurusd (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
+);
+
+create table Euraud (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
+);
+
+create table Eurchf (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
+);
+
+create table Audcad (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
+);
+
+create table Audusd (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
+);
+
+create table Audchf (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
+);
+
+create table Usdchf (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
+);
+
+create table Usdcad (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
+);
+
+create table Cadchf (
+  id integer primary key,
+  symbol varchar(32),
+  bid float,
+  ask float,
+  average float,
+  delta varchar(32),
+  date_created varchar(16)
+);
+
+create table DailyRates (
+  id integer primary key,
+  data text,
+  date_created varchar(16)
+);
 
 

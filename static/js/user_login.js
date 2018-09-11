@@ -1,7 +1,10 @@
+const GLOBAL_URL = 'http://127.0.0.1:5000/';
+
 login = () => {
-    let url = "https://kajaja.herokuapp.com/login";
-    let username = document.getElementById('username').value;
-    let password = document.getElementById('password').value;
+    // let url = "https://kajaja.herokuapp.com/login";
+    const url = GLOBAL_URL + 'login';
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
     const requestOptions = {
         method: 'POST',
         credentials: 'include',
@@ -12,7 +15,7 @@ login = () => {
     fetch(url, requestOptions)
         .then(res => res.json())
         .catch(err => {
-            console.log("error :" + err)
+            console.log("error :" + err);
         })
         .then(res => {
             console.log(res);
@@ -25,7 +28,7 @@ login = () => {
 };
 
 forgot_password = () => {
-    window.location = 'https://kajaja.herokuapp.com/password_recovery'
+    window.location = GLOBAL_URL + 'password_recovery';
 };
 
 

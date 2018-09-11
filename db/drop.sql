@@ -1,5 +1,20 @@
-drop table Animal;
-drop table Users;
-DROP TABLE Sessions;
-DROP TABLE Account;
-DROP TABLE Pictures;
+-- alter table Rates RENAME TO old;
+-- drop table Rates;
+-- create table Rates (
+--   id integer primary key,
+--   symbol varchar(32),
+--   bid float,
+--   ask float,
+--   average float,
+--   delta varchar(32),
+--   date_created text
+-- );
+
+-- alter table DailyRates RENAME TO old;
+-- create table DailyRates (
+--   id integer primary key,
+--   data text,
+--   date_created text
+-- );
+-- insert into DailyRates SELECT * from old;
+-- drop table old;

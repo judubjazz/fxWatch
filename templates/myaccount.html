@@ -12,51 +12,35 @@
             <div class="user-account-detail-container">
                 <div class="user-account-detail-wrapper">
                     <div class="user-account-detail">
-                        <h3>Details du Compte</h3>
-                        <span>Les informations seront utilisés seulement par Kajaja pour vous contacter</span>
+                        <h3>Details</h3>
+                        <span>Your personal data will not be used by fxRates</span>
                         <label>Username</label>
                         <input id='username' value="{{ infos[1] }}">
-                        <label>Nom</label>
-                        <input id="family_name" value="{{ infos[3] }}">
-                        <label>Prénom</label>
-                        <input id="name" value="{{ infos[2] }}">
-                        <label>Adresse</label>
-                        <input id="address" value="{{ infos[5] }}">
-                        <label>Téléphone</label>
-                        <input id="phone" value="{{ infos[4] }}">
+                        <label>Email</label>
+                        <input id='username' value="{{ infos[2] }}">
                     </div>
 
                     <div class="user-account-password-verification">
-                        <label>Entrez votre mot de passe pour sauver les changements</label>
+                        <label>Enter passwor to save changes</label>
                         <input id="password" type="password" >
                     </div>
 
                     <div class="user-account-button-container">
-                        <button class="user-account-button" onclick="update_myaccount({{ infos[0] }})">Sauvegarder</button>
-                        <span>|</span>
-                        <a>Canceler</a>
-
+                        <button class="user-account-button-save" onclick="update_myaccount({{ infos[0] }})">Save</button>
+                        <button class="user-account-button-cancel">Cancel</button>
                     </div>
                 </div>
             </div>
 
             <div class="user-account-summary-container">
                 <div class="user-account-summary-wrapper">
-                    <h3>Sommaire du compte</h3>
-                    <label>Membre Depuis :</label>
+                    <h3>Account Sumary</h3>
+                    <label>Member since :</label>
                     <span>N/A</span>
                     <label>Username :</label>
                     <span>{{ infos[1] }}</span>
-                    <label>Nom :</label>
-                    <span>{{ infos[3] }}</span>
-                    <label>Prénom :</label>
-                    <span>{{ infos[2] }}</span>
                     <label>Email :</label>
-                    <span>{{ infos[6] }}</span>
-                    <label>Adresse :</label>
-                    <span>{{ infos[5] }}</span>
-                    <label>Téléphone :</label>
-                    <span>{{ infos[4] }}</span>
+                    <span>{{ infos[2] }}</span>
                 </div>
             </div>
         </div>

@@ -29,28 +29,6 @@ $ workon tp2
 ~/project_root/db $ sqlite3 db.db
 ```
 
-##SQL
-* Un script de création de tables est disponible dans le répertoire [~/project_root/db/create.sql](db/create.sql)
-* Un script de supression de tables est disponible dans le répertoire  [~/project_root/db/drop.sql](db/drop.sql)
-* Un script d'insertion de données est disponible dans le répertoire  [~/project_root/db/insert.sql](db/insert.sql)
-* Pour exécuter tous les scripts, entrer dans le terminal :
-```bash
-~/project_root/db $ sqlite3 db.db
-~/project_root/db $ .read create.sql
-~/project_root/db $ .read insert.sql
-~/project_root/db $ .read drop.sql
-~/project_root/db $ .quit
-```
-
-##Insertion des images dans la base de données
-* Doit être des images en format jpeg
-* Des images sont déjà disponibles dans le répertoire [~/project_root/db/img/](db/img)
-* Après avoir exécuter le script de création de tables, exécuter le module python situé dans le répertoire  [~/project_root/db/insert_blob_img.py](db/insert_blob_img.py)
-* Pour exécuter le module, entrer dans le terminal:
-
-```bash
-~/project_root/db $ python3 insert_blob_img.py
-```
 
 ##Configuration du email
 * Doit être une adresse Gmail 
@@ -61,10 +39,6 @@ $ workon tp2
 ```bash
 $ pip install flask_mail
 ```
-
-## API Documentation
-
-La documentation de l'api Kajaja est disponible dans le répertoire  [~/project_root/kajajaApiDocs/README.md](kajajaApiDocs/README.md)
 
 ### RUN APP
 * Pour exécuter l'application à partir du terminal flask_script doit être installer.

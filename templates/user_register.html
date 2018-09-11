@@ -4,8 +4,6 @@
 
 {% endblock %}
 
-
-
 {% block content %}
 
     <div id="error"></div>
@@ -20,38 +18,6 @@
     </div>
     <br/>
     <div class="form-group row">
-        <label class="control-label col-sm-2" for="titre">prénom:</label>
-        <div class="col-sm-4">
-            <input id="name" name="name" type="text" class="form-control" placeholder="name">
-        </div>
-        <div class="col-sm-4" id="error_name"></div>
-    </div>
-    <br/>
-    <div class="form-group row">
-        <label class="control-label col-sm-2" for="family_name">nom:</label>
-        <div class="col-sm-4">
-            <input id="family_name" name="family_name" type="text" class="form-control" placeholder="family_name"/>
-        </div>
-        <div class="col-sm-4" id="error_family_name"></div>
-    </div>
-    <br/>
-    <div class="form-group row">
-        <label class="control-label col-sm-2" for="phone">téléphone:</label>
-        <div class="col-sm-4">
-            <input id="phone" name="phone" type="text" class="form-control" placeholder="phone">
-        </div>
-        <div class="col-sm-4" id="error_phone"></div>
-    </div>
-    <br/>
-    <div class="form-group row">
-        <label class="control-label col-sm-2" for="address">adresse</label>
-        <div class="col-sm-4">
-            <input id="address" name="adress" type="text" class="form-control" placeholder="address"/>
-        </div>
-        <div class="col-sm-4" id="error_address"></div>
-    </div>
-    <br>
-    <div class="form-group row">
         <label class="control-label col-sm-2" for="email">email:</label>
         <div class="col-sm-4">
             <input id="email" name="email" type="text" class="form-control" placeholder="email">
@@ -59,9 +25,8 @@
         <div class="col-sm-4" id="erreur_email"></div>
     </div>
     <br>
-
     <div class="form-group row">
-        <label class="control-label col-sm-2" for="password">mot de passe:</label>
+        <label class="control-label col-sm-2" for="password">password:</label>
         <div class="col-sm-4">
             <input id="password" name="password" type="password" class="form-control" placeholder="password" onchange='password_check()'>
         </div>
@@ -70,7 +35,7 @@
     <br>
 
     <div id='div_password' class="form-group row">
-        <label class="control-label col-sm-2" for="retype">retaper mot de passe:</label>
+        <label class="control-label col-sm-2" for="retype">retype password:</label>
         <div class="col-sm-4">
             <input id="retype" name="check_password" type="password" class="form-control" placeholder="retype" onkeyup='password_check()'>
         </div>

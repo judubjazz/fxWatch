@@ -18,7 +18,8 @@
 import sqlite3
 from binascii import a2b_base64
 import os
-
+from decimal import Decimal, getcontext
+import datetime
 
 class Database:
     def __init__(self):
@@ -26,37 +27,112 @@ class Database:
 
     def get_connection(self):
         if self.connection is None:
+            def dict_factory(cursor, row):
+                d = {}
+                for idx, col in enumerate(cursor.description):
+                    d[col[0]] = row[idx]
+                return d
+
             my_path = os.path.abspath(os.path.dirname(__file__))
             path = os.path.join(my_path, 'db/db.db')
             self.connection = sqlite3.connect(path)
+            self.connection.row_factory = dict_factory
         return self.connection
 
     def disconnect(self):
         if self.connection is not None:
             self.connection.close()
 
-    def get_pictures_imgdata(self, pic_id):
+    def get_rates(self):
         cursor = self.get_connection().cursor()
-        cursor.execute(("SELECT img_data FROM Pictures WHERE pic_id=?"),
-                       (pic_id,))
-        picture = cursor.fetchone()
-        if picture is None:
+        cursor.execute("SELECT * FROM Rates")
+        rates = cursor.fetchall()
+        if not rates:
             return None
         else:
-            blob_data = picture[0]
-            return blob_data
+            return rates
 
-    def insert_pictures(self, pic_id, file_data):
-        listed_img_uri = file_data.split(',')
-        img_base64_tostring = listed_img_uri[1]
+    def get_rates_like(self, symbol):
+        cursor = self.get_connection().cursor()
+        cursor.execute("SELECT * FROM Rates WHERE symbol LIKE ?", [symbol])
+        rates = cursor.fetchall()
+        if not rates:
+            return None
+        else:
+            return rates
 
-        # convert string to binary data for writing purpose
-        binary_data = a2b_base64(img_base64_tostring)
+    def insert_rates(self, rates):
         connection = self.get_connection()
-        connection.execute(
-            "INSERT INTO Pictures(pic_id, img_data) VALUES(?, ?)",
-            [pic_id, sqlite3.Binary(binary_data)])
+        for rate in rates:
+            if rate['symbol'] == 'EURCAD':
+                connection.execute("INSERT INTO Eurcad (bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            elif rate['symbol'] == 'EURUSD':
+                connection.execute("INSERT INTO Eurusd (bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            elif rate['symbol'] == 'EURAUD':
+                connection.execute("INSERT INTO Euraud (bid, ask, average, delta,  date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            elif rate['symbol'] == 'EURCHF':
+                connection.execute("INSERT INTO Eurchf (bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            elif rate['symbol'] == 'AUDCAD':
+                connection.execute("INSERT INTO Audcad (bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            elif rate['symbol'] == 'AUDUSD':
+                connection.execute("INSERT INTO Audusd (bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            elif rate['symbol'] == 'AUDCHF':
+                connection.execute("INSERT INTO Audchf (bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            elif rate['symbol'] == 'USDCHF':
+                connection.execute("INSERT INTO Usdchf (bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            elif rate['symbol'] == 'USDCAD':
+                connection.execute("INSERT INTO Usdcad (bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            elif rate['symbol'] == 'CADCHF':
+                connection.execute("INSERT INTO Cadchf (bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?)",
+                                   [rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
+            connection.execute("INSERT INTO Rates (symbol, bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?, ?)",
+                               [rate['symbol'], rate['bid'], rate['ask'], rate['average'], rate['delta'], rate['date_created']])
         connection.commit()
+
+    def insert_rate(self, rate):
+        connection = self.get_connection()
+        print(str(rate['delta']))
+        connection.execute("INSERT INTO Rates (symbol, bid, ask, average, delta, date_created) VALUES(?, ?, ?, ?, ?, ?)",
+                           [rate['symbol'], rate['bid'], rate['ask'], rate['average'], str(rate['delta']), rate['date_created']])
+        connection.commit()
+
+    def update_rate(self, rate):
+        bid = rate['bid']
+        ask = rate['ask']
+        average = (float(bid) + float(ask)) / 2
+        getcontext().prec = 8
+        delta = Decimal(bid) - Decimal(ask)
+        connection = self.get_connection()
+        connection.execute("UPDATE Rates SET bid = ?, ask = ?, average = ?, delta = ? WHERE symbol LIKE ?",
+                           [bid, ask, average, str(delta), rate['symbol']])
+        connection.commit()
+
+    def update_daily_rates(self, dayID, rate, date_created):
+        data = str(rate)
+        connection = self.get_connection()
+        connection.execute("UPDATE DailyRates SET data = ?, date_created = ? WHERE id = ?", [data, date_created, dayID])
+        connection.commit()
+
+    def get_daily_rates(self):
+        connection = self.get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM  DailyRates ORDER BY date_created DESC")
+        return cursor.fetchall()
+
+    def get_daily_rate_by_id(self, id):
+        connection = self.get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM  DailyRates WHERE id = ?", [id])
+        return cursor.fetchone()
 
     def update_pictures(self, pic_id, file_data):
         listed_img_uri = file_data.split(',')
@@ -78,51 +154,11 @@ class Database:
     def get_animals_by_date_creation(self, option):
         connexion = self.get_connection()
         cursor = connexion.cursor()
-        cursor.execute(" SELECT * FROM Animal WHERE "
-                       "strftime('%Y-%m-%d','now') >= strftime"
-                       "('%Y-%m-%d',date_creation) ORDER BY "
-                       "date_creation DESC")
+        cursor.execute(" SELECT * FROM Animal WHERE strftime('%Y-%m-%d','now') >= strftime ('%Y-%m-%d',date_creation) ORDER BY date_creation DESC")
         if option == 1:
             return self.animal_to_list_of_dict(cursor.fetchall())
         else:
             return cursor.fetchmany(5)
-
-    def get_animals_like_query(self, query, filter):
-        connexion = self.get_connection()
-        cursor = connexion.cursor()
-        query = "%" + query + "%"
-
-        if filter == 'all':
-            sql = "SELECT * FROM Animal a WHERE a.name LIKE ? " \
-                  "OR a.description LIKE ? OR a.type LIKE ? OR a.race LIKE ?"
-            cursor.execute((sql), (query, query, query, query,))
-        elif filter == 'other':
-            sql = "SELECT * FROM Animal a WHERE  a.type " \
-                  "NOT IN ('dog','cat') " \
-                  "AND a.name LIKE ? OR a.description LIKE ?"
-            cursor.execute((sql), (query, query,))
-        elif filter == 'dogs':
-            sql = "SELECT * FROM Animal a WHERE  a.type LIKE ? " \
-                  "AND a.description LIKE ? OR a.type LIKE ? " \
-                  "AND a.name LIKE ? "
-            cursor.execute((sql), ('%dog%', query, '%dog%', query,))
-        elif filter == 'cats':
-            sql = "SELECT * FROM Animal a WHERE  a.type LIKE ? " \
-                  "AND a.description LIKE ? OR a.type LIKE ? " \
-                  "AND a.name LIKE ? "
-            cursor.execute((sql), ('%cat%', query, '%cat%', query,))
-        else:
-            sql = "SELECT * FROM Animal a WHERE a.name LIKE ? " \
-                  "OR a.description LIKE ? OR a.type LIKE ? OR a.race LIKE ?"
-            cursor.execute((sql), (query, query, query, query,))
-
-        return cursor.fetchall()
-
-    def get_all_animals(self):
-        connexion = self.get_connection()
-        cursor = connexion.cursor()
-        cursor.execute('SELECT * FROM Animal')
-        return cursor.fetchall()
 
     def get_animal_by_name(self, name):
         connexion = self.get_connection()
@@ -131,85 +167,10 @@ class Database:
         cursor.execute("SELECT * FROM Animal WHERE name LIKE ?", (sql_query,))
         return cursor.fetchone()
 
-    def get_animals_by_id(self, id):
-        connexion = self.get_connection()
-        cursor = connexion.cursor()
-        cursor.execute("SELECT * FROM Animal WHERE id = ?", (id,))
-        return cursor.fetchall()
-
-    def get_animals_by_owner_id(self, owner_id):
-        connexion = self.get_connection()
-        cursor = connexion.cursor()
-        cursor.execute("SELECT * FROM Animal WHERE owner_id = ?", (owner_id,))
-        return cursor.fetchall()
-
-    def get_animals_id_like(self, id):
-        connexion = self.get_connection()
-        cursor = connexion.cursor()
-        sql_id = "%" + id + "%"
-        cursor.execute("SELECT * FROM Animal WHERE id LIKE ?",
-                       (sql_id,))
-        return cursor.fetchall()
-
-    def get_animal_pic_id_by_owner_id(self, owner_id):
-        connexion = self.get_connection()
-        cursor = connexion.cursor()
-        cursor.execute("SELECT pic_id FROM Animal WHERE owner_id = ?",
-                       (owner_id,))
-        return cursor.fetchall()
-
-    def delete_animal(self, owner_id, pic_id):
-        connexion = self.get_connection()
-        cursor = connexion.cursor()
-        cursor.execute("DELETE FROM Animal WHERE owner_id=?", (owner_id,))
-        connexion.commit()
-        cursor.execute("DELETE FROM Pictures WHERE pic_id=?", (pic_id,))
-        connexion.commit()
-
-    def update_animal(self, name, type, race, age, date_creation, description,
-                      pic_id, owner_id):
-        connexion = self.get_connection()
-        cursor = connexion.cursor()
-        if pic_id == '':
-            # no need to update image
-            sql_query = "UPDATE Animal " \
-                        "SET name=?, type=?, race=?, age=?,"\
-                        " date_creation=?, description=? WHERE owner_id=?"
-            cursor.execute(sql_query,
-                           (name, type, race, age, date_creation, description,
-                            owner_id,))
-        else:
-            sql_query = "UPDATE Animal " \
-                        "SET name=?, type=?, race=?, age=?, " \
-                        "date_creation=?, description=?, pic_id=? " \
-                        "WHERE owner_id=?"
-            cursor.execute(sql_query, (name, type, race, age, date_creation,
-                                       description, pic_id, owner_id,))
-        connexion.commit()
-        return cursor.fetchone()
-
-    def insert_animal(self, name, type, race, age, date_creation, description,
-                      pic_id, owner_id):
-        connexion = self.get_connection()
-        cursor = connexion.cursor()
-        cursor.execute(
-            "INSERT INTO Animal(name, type, race, age, date_creation, "
-            "description, pic_id, owner_id) "
-            "VALUES(?, ?, ?, ?, ?,?,?, ?)",
-            (name, type, race, age, date_creation, description, pic_id,
-             owner_id,))
-        connexion.commit()
-
-    def create_user(self, username, name, family_name, phone, address, email,
-                    salt, hashed_password):
+    def create_user(self, username, email, salt, hashed_password):
         connection = self.get_connection()
         connection.execute((
-                           "INSERT INTO Users(username, name, family_name, "
-                           "phone, address, email, salt, hash)"
-                           " VALUES(?, ?, ?, ?, ?, ?, ?, ?)"),
-                           (username, name, family_name, phone, address, email,
-                            salt,
-                            hashed_password))
+            "INSERT INTO Users(username, email, salt, hash) VALUES(?, ?, ?, ?)"),(username, email, salt, hashed_password))
         connection.commit()
 
     def get_user_id_by_email(self, email):
@@ -223,13 +184,12 @@ class Database:
 
     def get_user_hash_by_username(self, username):
         cursor = self.get_connection().cursor()
-        cursor.execute('SELECT salt, hash FROM Users WHERE username=?',
-                       (username,))
+        cursor.execute('SELECT salt, hash FROM Users WHERE username=?',[username])
         user = cursor.fetchone()
         if user is None:
             return None
         else:
-            return user[0], user[1]
+            return user['salt'], user['hash']
 
     def get_user_info_by_username(self, username):
         cursor = self.get_connection().cursor()
@@ -238,8 +198,7 @@ class Database:
         if user is None:
             return None
         else:
-            return user[0], user[1], user[2], user[3], user[4], user[5], user[
-                6]
+            return user['id'], user['username'], user['email'], user['salt'], user['hash']
 
     def get_user_username_by_email(self, email):
         cursor = self.get_connection().cursor()
@@ -278,18 +237,6 @@ class Database:
         else:
             return data[0]
 
-    def get_user_adresse_by_animal_id(self, animal_id):
-        cursor = self.get_connection().cursor()
-        cursor.execute('SELECT u.address '
-                       'FROM Animal a JOIN Users u '
-                       'ON u.id = a.owner_id '
-                       'WHERE a.id=?', (animal_id,))
-        data = cursor.fetchone()
-        if data is None:
-            return None
-        else:
-            return data[0]
-
     def get_all_users(self):
         connection = self.get_connection()
         cursor = connection.cursor()
@@ -302,15 +249,12 @@ class Database:
                            (salt, hash, id,))
         connection.commit()
 
-    def update_user(self, id, username, name, family_name, phone, address,
-                    email, salt, hash, session_username):
+    def update_user(self, id, username, email, salt, hash, session_username):
         connection = self.get_connection()
         connection.execute('UPDATE Users '
-                           'SET username=?, name=?, family_name=?, phone=?, '
-                           'address=?, email=?, salt=?, hash=? '
+                           'SET username=?, email=?, salt=?, hash=? '
                            'WHERE id=?',
-                           (username, name, family_name, phone, address, email,
-                            salt, hash, id,))
+                           (username, email,salt, hash, id,))
         connection.commit()
 
         # user wants to update his username
@@ -335,13 +279,12 @@ class Database:
 
     def get_session_username_by_id_session(self, id_session):
         cursor = self.get_connection().cursor()
-        cursor.execute("SELECT username FROM sessions WHERE id_session=?",
-                       (id_session,))
+        cursor.execute("SELECT username FROM sessions WHERE id_session=?",(id_session,))
         data = cursor.fetchone()
         if data is None:
             return None
         else:
-            return data[0]
+            return data['username']
 
     def get_account_token_by_username(self, username):
         connection = self.get_connection()
@@ -366,15 +309,5 @@ class Database:
             list_animal.append(self.to_dict(row))
         return list_animal
 
-    def create_account(self, username, user_email, token, date):
-        connection = self.get_connection()
-        connection.execute(
-            "INSERT INTO Account(username, email,token,date_sent) "
-            "VALUES(?, ?, ?, ?)",
-            (username, user_email, token, date))
-        connection.commit()
-
     def to_dict(self, row):
-        return {"id": row[0], "titre": row[1], "identifiant": row[2],
-                "auteur": row[3], "date_publication": row[4],
-                "paragraphe": row[5]}
+        return {"id": row[0], "titre": row[1], "identifiant": row[2],"auteur": row[3], "date_publication": row[4], "paragraphe": row[5]}

@@ -1,4 +1,6 @@
 //https://www.w3schools.com/html/tryit.asp?filename=tryhtml5_draganddrop
+const GLOBAL_URL = 'http://127.0.0.1:5000/';
+
 function allowDrop(ev) {
     ev.preventDefault();
 }
@@ -36,7 +38,7 @@ $(document).ready(function () {
  * get Dom values, set fetch options then fetch
  */
 submit_research = () => {
-    let url = "https://kajaja.herokuapp.com/search";
+    let url = GLOBAL_URL + 'search';
     let query = document.getElementById('input-keyword').value;
     let filter = document.getElementById('select-option').value;
 
@@ -72,7 +74,7 @@ submit_research = () => {
  * @param animal_id
  */
 view_post = (animal_id) => {
-    window.location = 'https://kajaja.herokuapp.com/animals/' + animal_id;
+    window.location = GLOBAL_URL + animal_id;
 };
 
 /**

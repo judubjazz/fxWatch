@@ -1,12 +1,10 @@
+const GLOBAL_URL = 'http://127.0.0.1:5000/';
+
 register = () => {
-    let url = "https://kajaja.herokuapp.com/register";
-    let username = document.getElementById('username').value;
-    let name = document.getElementById('name').value;
-    let family_name = document.getElementById('family_name').value;
-    let phone = document.getElementById('phone').value;
-    let address = document.getElementById('address').value;
-    let email = document.getElementById('email').value;
-    let password = document.getElementById('password').value;
+    const url = GLOBAL_URL + 'register';
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
     const requestOptions = {
         method: 'POST',
@@ -14,10 +12,6 @@ register = () => {
         credentials: 'include',
         body: JSON.stringify({
             username: username,
-            name: name,
-            family_name: family_name,
-            phone: phone,
-            address: address,
             email: email,
             password: password
         }),
@@ -27,7 +21,7 @@ register = () => {
     return fetch(url, requestOptions)
         .then(response => response.json())
         .catch(err => {
-            console.log("error :" + err)
+            console.log("error :" + err);
         })
         .then(res => {
             console.log(res);
